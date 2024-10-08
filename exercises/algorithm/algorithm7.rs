@@ -3,7 +3,7 @@
 	This question requires you to use a stack to achieve a bracket match
 */
 
-// I AM NOT DONE
+//
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
@@ -32,7 +32,15 @@ impl<T> Stack<T> {
 	}
 	fn pop(&mut self) -> Option<T> {
 		// TODO
-		None
+		match self.data.pop() {
+			Some(data) => {
+				self.size -= 1;
+				Some(data)
+			}
+			None => {
+				None
+			}
+		}
 	}
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
@@ -102,7 +110,70 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 fn bracket_match(bracket: &str) -> bool
 {
 	//TODO
-	true
+	/*	答案1
+	let mut stack = Stack::new();
+	for c in bracket.chars() {
+		match c {
+			'[' => {
+				stack.push(c);
+			}
+			'(' => {
+				stack.push(c);
+			}
+			'{'=> {
+				stack.push(c);
+			}
+			'(' => {
+				stack.push(c);
+			}
+			'{' => {
+				stack.push(c);
+			}
+			//	这3个后括号的顺序不能变，否则将不符合某些测试集。
+			//	这样写会有问题，因为如果不同类型的括号的优先级有变，则这里的代码就必须改。
+			']' => {
+				if stack.pop() != Some('[') {
+					return false;
+				}
+			}
+			')' => {
+				if stack.pop() != Some('(') {
+					return false;
+				}
+			}
+			'}' => {
+				if stack.pop() != Some('{') {
+					return false;
+				}
+			}
+			_ => {}
+		};
+	}
+	stack.is_empty()	*/
+
+	//	答案2
+	use std::collections::HashMap;
+
+	let mut stack = Stack::new();
+	let mut bracket_map = HashMap::new();
+	bracket_map.insert('}', '{');
+	bracket_map.insert(']', '[');
+	bracket_map.insert(')', '(');
+
+	for c in bracket.chars() {
+		match c {
+			'{' | '[' | '(' => stack.push(c),
+			'}' | ']' | ')' => {
+				if bracket_map.get(&c) == stack.peek() {
+					stack.pop();
+				} else {
+					return false;
+				}
+			}
+			_ => {}
+		}
+	}
+	stack.is_empty()
 }
 
 #[cfg(test)]

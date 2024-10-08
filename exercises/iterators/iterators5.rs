@@ -11,7 +11,7 @@
 // Execute `rustlings hint iterators5` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
+//
 
 use std::collections::HashMap;
 
@@ -35,7 +35,18 @@ fn count_for(map: &HashMap<String, Progress>, value: Progress) -> usize {
 fn count_iterator(map: &HashMap<String, Progress>, value: Progress) -> usize {
     // map is a hashmap with String keys and Progress values.
     // map = { "variables1": Complete, "from_str": None, ... }
-    todo!();
+    // Method 1
+    map.iter().fold(0, |mut acc, hashmap| {
+        if *hashmap.1 == value {
+            acc += 1;
+        }
+        acc
+    })
+    
+    /* Method 2
+        // 要使用迭代器来重现计数功能，可以使用filter方法过滤出具有指定进度值的元素，
+        // 并使用count方法计算满足条件的元素数量。
+        map.values().filter(|&progress| *progress == value).count() */
 }
 
 fn count_collection_for(collection: &[HashMap<String, Progress>], value: Progress) -> usize {
@@ -54,7 +65,26 @@ fn count_collection_iterator(collection: &[HashMap<String, Progress>], value: Pr
     // collection is a slice of hashmaps.
     // collection = [{ "variables1": Complete, "from_str": None, ... },
     //     { "variables2": Complete, ... }, ... ]
-    todo!();
+    // Method 1
+    collection.iter().fold(0, |mut acc, x| {
+        acc += x.iter().fold(0, |mut acc1, hashmap| {
+            if *hashmap.1 == value {
+                acc1 +=1;
+            }
+            acc1
+        });
+        acc
+    })
+
+    /* Method 2
+        // 需要先展平这个切片，然后再进行过滤和计数。
+        // 可以使用flat_map方法将切片中的每个HashMap转换为一个迭代器，
+        // 然后使用filter方法过滤出具有指定进度值的元素，
+        // 最后使用count方法计算满足条件的元素数量。
+        collection.into_iter()
+        .flat_map(|x| x.values())
+        .filter(|&progress| *progress == value)
+        .count() */
 }
 
 #[cfg(test)]
@@ -154,3 +184,17 @@ mod tests {
         vec![map, other]
     }
 }
+/*
+fn count_iterator(map: &HashMap<String, Progress>, value: Progress) -> usize {
+    // map is a hashmap with String keys and Progress values.
+    // map = { "variables1": Complete, "from_str": None, ... }
+    todo!();
+}
+
+fn count_collection_iterator(collection: &[HashMap<String, Progress>], value: Progress) -> usize {
+    // collection is a slice of hashmaps.
+    // collection = [{ "variables1": Complete, "from_str": None, ... },
+    //     { "variables2": Complete, ... }, ... ]
+    todo!();
+}
+*/

@@ -31,7 +31,7 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
+//
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -49,11 +49,89 @@ enum ParsePersonError {
 // you want to return a string error message, you can do so via just using
 // return `Err("my error message".into())`.
 
+//  Method 1
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        let pieces: Vec<&str> = s.split(',').collect();
+        match pieces.len() {
+            1 if pieces[0] == "" => Err(Self::Err::Empty),
+            2 => {
+                if pieces[0] == "" {
+                    Err(Self::Err::NoName)
+                } else {
+                    let result = pieces[1].parse::<usize>().map_err(|err| {Self::Err::ParseInt(err)})?;
+                    //the signature of map_err is just "pub fn map_err<F, O>(self, op: O) -> Result<T, F>"
+                    /* ? was previously explained as either unwrap or return Err(err). 
+                    This is only mostly true. It actually means unwrap or return Err(From::from(err)). 
+                    Since From::from is a conversion utility between different types, 
+                    this means that if you ? where the error is convertible to the return type, 
+                    it will convert automatically.  */
+                    Ok(Self {
+                        name: pieces[0].to_string(),
+                        age: result,
+                        })
+                }
+            }
+            _ => Err(Self::Err::BadLen)
+        }
+
     }
 }
+
+/*  Method 2
+impl FromStr for Person {
+    type Err = ParsePersonError;
+    fn from_str(s: &str) -> Result<Person, Self::Err> {
+        let pieces: Vec<&str> = s.split(',').collect();
+        match pieces.len() {
+            1 if pieces[0] == "" => Err(Self::Err::Empty),
+            2 => {
+                if pieces[0] == "" {
+                    Err(Self::Err::NoName)
+                } else {
+                    match pieces[1].parse::<usize>() {
+                        Ok(result) => Ok(Self {
+                            name: pieces[0].to_string(),
+                            age: result,
+                            }),
+                        Err(result) => Err(Self::Err::ParseInt(result))
+                    }
+                }
+            }
+            _ => Err(Self::Err::BadLen)
+        }
+
+    }
+} */
+
+/*  Method 3
+impl FromStr for Person {
+    type Err = ParsePersonError;
+    fn from_str(s: &str) -> Result<Person, Self::Err> {
+        match s.is_empty() {
+            true => Err(ParsePersonError::Empty),
+            false => {
+                let parts: Vec<&str> = s.split(',').collect();
+                match parts.len() != 2 {
+                    true => return Err(ParsePersonError::BadLen),
+                    false => {
+                        let name = parts[0].trim();
+                        if name.is_empty() {
+                            return Err(ParsePersonError::NoName)
+                        } 
+                        let number = parts[1].parse(); 
+                        if let Err(x) = number{
+                            return Err(ParsePersonError::ParseInt(x))
+                        }
+                        Ok(Person{name:String::from(name), age:number.unwrap()})
+                    }
+                }
+            }
+        }
+    }
+}
+ */
 
 fn main() {
     let p = "Mark,20".parse::<Person>().unwrap();

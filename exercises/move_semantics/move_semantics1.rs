@@ -3,12 +3,12 @@
 // Execute `rustlings hint move_semantics1` or use the `hint` watch subcommand
 // for a hint.
 
-// I AM NOT DONE
+//
 
 fn main() {
     let vec0 = Vec::new();
 
-    let vec1 = fill_vec(vec0);
+    let mut vec1 = fill_vec(vec0);//first way is make vec1 muttable, second is re-create a vec1 between these two println!
 
     println!("{} has length {} content `{:?}`", "vec1", vec1.len(), vec1);
 

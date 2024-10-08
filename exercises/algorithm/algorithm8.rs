@@ -2,7 +2,7 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
+//
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -52,30 +52,48 @@ impl<T> Default for Queue<T> {
     }
 }
 
+//  参考资料：https://www.geeksforgeeks.org/implement-stack-using-queue/
+//  对于使用2个queues来构造一个stack的情况，主要是用一个queue辅助另一个queue交换数据顺序
 pub struct myStack<T>
 {
 	//TODO
 	q1:Queue<T>,
-	q2:Queue<T>
+	q2:Queue<T>,
+
+    size: usize
 }
 impl<T> myStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
 			q1:Queue::<T>::new(),
-			q2:Queue::<T>::new()
+			q2:Queue::<T>::new(),
+
+            size: 0
         }
     }
     pub fn push(&mut self, elem: T) {
         //TODO
+        self.size += 1;
+        self.q1.enqueue(elem);
     }
     pub fn pop(&mut self) -> Result<T, &str> {
         //TODO
-		Err("Stack is empty")
+        if self.q1.size() == 0 {
+            return Err("Stack is empty")
+        }
+        while self.q1.size() > 1 {
+            if let Ok(value) =self.q1.dequeue() {
+                self.q2.enqueue(value);
+            }
+        }
+        self.size -= 1;
+        std::mem::swap(&mut self.q1, &mut self.q2);
+        self.q2.dequeue()
     }
     pub fn is_empty(&self) -> bool {
 		//TODO
-        true
+        self.q1.is_empty()
     }
 }
 

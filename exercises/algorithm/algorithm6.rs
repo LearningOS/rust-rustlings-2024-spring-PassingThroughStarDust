@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic DFS traversal
 */
 
-// I AM NOT DONE
+//
 use std::collections::HashSet;
 
 struct Graph {
@@ -24,6 +24,57 @@ impl Graph {
 
     fn dfs_util(&self, v: usize, visited: &mut HashSet<usize>, visit_order: &mut Vec<usize>) {
         //TODO
+        //  递归实现
+        visited.insert(v);
+        visit_order.push(v);
+        for i in 0..self.adj[v].len() {
+            if let None = visited.get(&self.adj[v][i]) {
+                self.dfs_util(self.adj[v][i], visited, visit_order);
+            }
+        }
+
+        /*  循环实现 方法1
+        //  vector当stack用
+        let mut stack = Vec::new();
+        visited.insert(v);
+        visit_order.push(v);
+        stack.push(v);
+        while !stack.is_empty(){
+            //  这里使用stack.last()或stack.last_mut()获取末尾数值会有违背reference rules的现象
+            let i = stack[stack.len() - 1];
+            for j in 0..self.adj[i].len() {
+                if let None = visited.get(&self.adj[i][j]) {
+                    visited.insert(self.adj[i][j]);
+                    visit_order.push(self.adj[i][j]);
+                    stack.push(self.adj[i][j]);
+                    break;
+                }
+            }
+            if i == stack[stack.len() - 1] {
+                stack.pop();
+            }
+        }   */
+
+        /*  循环实现 方法2
+        let mut stack = Vec::new();
+        visited.insert(v);
+        visit_order.push(v);
+        stack.push(v);
+        while let Some(i0) = stack.last_mut() {
+            //  必须在这里解引用，如果沿用i0会导致下方发生reference冲突
+            let mut i = *i0;
+            for j in 0..self.adj[i].len() {
+                if let None = visited.get(&self.adj[i][j]) {
+                    visited.insert(self.adj[i][j]);
+                    visit_order.push(self.adj[i][j]);
+                    stack.push(self.adj[i][j]);
+                    break;
+                }
+            }
+            if Some(&mut i) == stack.last_mut() {
+                stack.pop();
+            }
+        }   */
     }
 
     // Perform a depth-first search on the graph, return the order of visited nodes

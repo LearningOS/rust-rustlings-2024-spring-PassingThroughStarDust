@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
+//
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -51,12 +51,50 @@ where
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+        //注意这里只有调用TreeNode的insert才能作出，直接从根节点开始往下面的节点寻找
+        //会遇到一系列与ownership有关的问题。
+        match self.root {
+            Some(ref mut node) => { //解构出的是智能指针的引用。
+                node.insert(value); //智能指针涵盖了普通指针的用法。智能指针可以被当成普通指针。
+            }
+            None => {
+                self.root = Some(Box::new(TreeNode::new(value)));
+            }
+        }
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
         //TODO
-        true
+        //必须使用reference，不然“cannot move out of `self.root` which is behind a mutable reference”。因为
+        //“Option<Box<TreeNode<T>>>` does not implement the `Copy` trait”。解决方案即这里的使用引用或添加Copy trait
+        let mut cur = &self.root;
+        while let Some(ref node) = cur {
+            //std::cmp::Ord, fn cmp(&self, other: &Self) -> Ordering
+            match value.cmp(&node.value) {
+                Ordering::Less => {
+                    cur = &node.left;
+                }
+                Ordering::Greater => {
+                    cur = &node.right;
+                }
+                Ordering::Equal => {
+                    return true;
+                }
+            }
+            /*这也可以使用传统的比大小方法
+                while let Some(ref node) = cur {
+                if value < node.value {
+                    cur = &node.left;
+                } else if value > node.value {
+                    cur = &node.right;
+                } else {
+                    return true;
+                }
+            }
+            false */
+        }
+        false
     }
 }
 
@@ -67,6 +105,24 @@ where
     // Insert a node into the tree
     fn insert(&mut self, value: T) {
         //TODO
+        //BinarySearchTree的insert设计上只调用节点的insert，那边直接结从根节点开始是不行的。
+        match value.cmp(&self.value) {
+            Ordering::Less => {
+                if let Some(ref mut left) = self.left {
+                    left.insert(value);
+                } else {
+                    self.left = Some(Box::new(TreeNode::new(value)));
+                }
+            }
+            Ordering::Greater => {
+                if let Some(ref mut right) = self.right {
+                    right.insert(value);
+                } else {
+                    self.right = Some(Box::new(TreeNode::new(value)));
+                }
+            }
+            Ordering::Equal => {}
+        }
     }
 }
 

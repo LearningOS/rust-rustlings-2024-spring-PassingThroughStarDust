@@ -27,14 +27,19 @@
 //
 // You should NOT modify any existing code except for adding two lines of attributes.
 
-// I AM NOT DONE
-
+//
 extern "Rust" {
     fn my_demo_function(a: u32) -> u32;
+
+    #[link_name = "my_demo_function"]
+    //该属性告诉编译器，使用它的函数会和linked function使用同样的函数体
     fn my_demo_function_alias(a: u32) -> u32;
 }
 
 mod Foo {
+    #[no_mangle]
+    //"no_mangle"用于本地函数，在本题中保证即使两个函数使用相同函数体，
+    //在实际使用时仍然可以使用它们各自的signarture来调用它们。
     // No `extern` equals `extern "Rust"`.
     fn my_demo_function(a: u32) -> u32 {
         a
